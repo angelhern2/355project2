@@ -1,0 +1,14 @@
+#include <iostream>
+
+void checkGrade(char grade) {
+    switch (grade) {
+        case 'A':
+            std::cout << "Excellent\n";
+        case 'B': // Missing break causes unintended fall-through
+            std::cout << "Good\n";
+            break;
+        default:
+            std::cout << "Needs improvement\n";
+            break;
+    }
+}

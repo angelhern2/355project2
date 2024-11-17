@@ -1,7 +1,10 @@
 package it355project2;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class RestaurantMenu {
@@ -17,7 +20,8 @@ public class RestaurantMenu {
         System.out.println("4. Place Order");
         System.out.println("5. View Current Order");
         System.out.println("6. Finalize Order");
-        System.out.println("7. Exit");
+        System.out.println("7. Save Menu to File");
+        System.out.println("8. Exit");
     }
 
     /**
@@ -31,7 +35,59 @@ public class RestaurantMenu {
         Order order = new Order();
         boolean running = true;
 
+        // Initialize a list to keep track of all receipt file paths
+        List<String> receiptFiles = new ArrayList<>();
+
+        // Initialize a variable to keep track of total sales
+        double totalSales = 0.0;
+
+        // Initialize an order counter for unique receipt naming
+        int orderCounter = 1;
+
+        // Define the directory path for receipts and summaries
+        String outputDirectory = "it355project2";
+
+        // Ensure the output directory exists
+        File directory = new File(outputDirectory);
+        if (!directory.exists()) {
+            if (directory.mkdirs()) {
+                System.out.println("Created directory: " + outputDirectory);
+            } else {
+                System.out.println("Failed to create directory: " + outputDirectory);
+                System.out.println("Receipts and summaries will be saved in the current directory.");
+                outputDirectory = "."; // Fallback to current directory
+            }
+        }
+
         System.out.println("Welcome to the Restaurant!");
+
+        // Prompt user to load menu from file
+        System.out.print("Would you like to load the menu from a file? (yes/no): ");
+        String loadChoice = scanner.nextLine().trim().toLowerCase();
+
+        if (loadChoice.equals("yes") || loadChoice.equals("y")) {
+            System.out.print("Enter the path to the menu file (e.g., menu.txt): ");
+            String menuFilePath = scanner.nextLine().trim();
+
+            if (menuFilePath.isEmpty()) {
+                System.out.println("No file path provided. Starting with an empty menu.");
+            } else {
+                File menuFile = new File(menuFilePath);
+                if (menuFile.exists() && menuFile.isFile()) {
+                    try {
+                        menu.loadFromFile(menuFilePath);
+                        System.out.println("Menu loaded successfully from " + menuFilePath + "\n");
+                    } catch (IOException e) {
+                        System.out.println("An error occurred while loading the menu: " + e.getMessage());
+                        System.out.println("Starting with an empty menu.\n");
+                    }
+                } else {
+                    System.out.println("File does not exist or is not a valid file. Starting with an empty menu.\n");
+                }
+            }
+        } else {
+            System.out.println("Starting with an empty menu. You can add items manually.\n");
+        }
 
         while (running) {
             displayMainOptions();
@@ -110,21 +166,110 @@ public class RestaurantMenu {
                         System.out.println("Your order is empty. Please add items before finalizing.");
                         break;
                     }
-                    System.out.print("Enter the file path or name to save the receipt (e.g., receipt.txt): ");
-                    String filePath = scanner.nextLine().trim();
-                    if (filePath.isEmpty()) {
-                        System.out.println("File path cannot be empty.");
-                        break;
+                    // Calculate the order total before generating the receipt
+                    double orderTotal = order.calculateTotal();
+
+                    // Generate a unique receipt file name using the order counter
+                    String defaultReceiptName = "receipt" + orderCounter + ".txt";
+                    System.out.print("Enter the file name to save the receipt (e.g., " + defaultReceiptName + "): ");
+                    String userFileName = scanner.nextLine().trim();
+
+                    // If the user doesn't provide a file name, use the default
+                    String filePath;
+                    if (userFileName.isEmpty()) {
+                        filePath = defaultReceiptName;
+                    } else {
+                        // Ensure the file name ends with .txt
+                        if (!userFileName.endsWith(".txt")) {
+                            userFileName += ".txt";
+                        }
+                        filePath = userFileName;
                     }
+
+                    // Prepend the output directory to the file path
+                    filePath = outputDirectory + File.separator + filePath;
+
                     try {
                         order.generateReceipt(filePath);
                         System.out.println("Receipt has been saved to " + filePath);
                         System.out.println("Thank you for your order!\n");
+
+                        // Update the list of receipt files and total sales
+                        receiptFiles.add(filePath);
+                        totalSales += orderTotal;
+
+                        // Increment the order counter for the next receipt
+                        orderCounter++;
+
                     } catch (IOException e) {
                         System.out.println("An error occurred while writing the receipt: " + e.getMessage());
                     }
                     break;
                 case "7":
+                    // Save Menu to File
+                    System.out.print("Enter the file name to save the current menu (e.g., current_menu.txt): ");
+                    String saveMenuFileName = scanner.nextLine().trim();
+
+                    if (saveMenuFileName.isEmpty()) {
+                        System.out.println("File name cannot be empty. Menu not saved.");
+                        break;
+                    }
+
+                    // Ensure the file name ends with .txt
+                    if (!saveMenuFileName.endsWith(".txt")) {
+                        saveMenuFileName += ".txt";
+                    }
+
+                    // Prepend the output directory to the file path
+                    String saveMenuFilePath = outputDirectory + File.separator + saveMenuFileName;
+
+                    try {
+                        menu.saveToFile(saveMenuFilePath);
+                        System.out.println("Menu has been saved to " + saveMenuFilePath);
+                    } catch (IOException e) {
+                        System.out.println("An error occurred while saving the menu: " + e.getMessage());
+                    }
+                    break;
+                case "8":
+                    // Prompt the user to generate a summary file
+                    System.out.print("Would you like to generate a summary of all receipts? (yes/no): ");
+                    String summaryChoice = scanner.nextLine().trim().toLowerCase();
+
+                    if (summaryChoice.equals("yes") || summaryChoice.equals("y")) {
+                        System.out.print("Enter the file name for the summary (e.g., summary.txt): ");
+                        String summaryFileName = scanner.nextLine().trim();
+
+                        if (summaryFileName.isEmpty()) {
+                            System.out.println("File name cannot be empty. Summary will not be generated.");
+                        } else {
+                            // Ensure the file name ends with .txt
+                            if (!summaryFileName.endsWith(".txt")) {
+                                summaryFileName += ".txt";
+                            }
+
+                            // Prepend the output directory to the summary file path
+                            String summaryFilePath = outputDirectory + File.separator + summaryFileName;
+
+                            try (FileWriter summaryWriter = new FileWriter(summaryFilePath)) {
+                                summaryWriter.write("----- Summary of All Receipts -----\n\n");
+
+                                if (receiptFiles.isEmpty()) {
+                                    summaryWriter.write("No receipts were generated during this session.\n");
+                                } else {
+                                    for (String receipt : receiptFiles) {
+                                        summaryWriter.write("Receipt File: " + receipt + "\n");
+                                    }
+                                    summaryWriter.write("\nTotal Sales: $" + String.format("%.2f", totalSales) + "\n");
+                                }
+
+                                summaryWriter.write("\nThank you for using the Restaurant Management System!\n");
+                                System.out.println("Summary has been saved to " + summaryFilePath);
+                            } catch (IOException e) {
+                                System.out.println("An error occurred while writing the summary: " + e.getMessage());
+                            }
+                        }
+                    }
+
                     System.out.println("Exiting out!");
                     running = false;
                     break;

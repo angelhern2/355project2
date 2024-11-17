@@ -18,7 +18,7 @@ public class MenuItem {
         this.price = price;
     }
 
-    // Getters and Setters
+    // Getters
 
     public String getId() {
         return id;
@@ -36,5 +36,24 @@ public class MenuItem {
     @Override
     public String toString() {
         return String.format("%s. %s - $%.2f", id, name, price);
+    }
+
+    // Override equals and hashCode to ensure MenuItem can be compared based on id
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MenuItem other = (MenuItem) obj;
+        return id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }

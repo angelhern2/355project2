@@ -51,7 +51,9 @@ public class RestaurantMenu {
         File directory = new File(outputDirectory);
         if (!directory.exists()) {
             if (directory.mkdirs()) {
-                System.out.println("Created directory: " + outputDirectory);
+                System.out.println("Created directory: " + outputDirectory); // complient code for "incorrect block
+                                                                             // delimination 483" always use {} even in
+                                                                             // 1 line
             } else {
                 System.out.println("Failed to create directory: " + outputDirectory);
                 System.out.println("Receipts and summaries will be saved in the current directory.");
@@ -230,7 +232,7 @@ public class RestaurantMenu {
                         System.out.println("An error occurred while saving the menu: " + e.getMessage());
                     }
                     break;
-                case "8":
+                case "8": // complient code for cwe 835. loop has a reachable exit
                     // Prompt the user to generate a summary file
                     System.out.print("Would you like to generate a summary of all receipts? (yes/no): ");
                     String summaryChoice = scanner.nextLine().trim().toLowerCase();
@@ -273,8 +275,11 @@ public class RestaurantMenu {
                     System.out.println("Exiting out!");
                     running = false;
                     break;
+                // comlient code for 115 "misinterpretation of input " since it only allows for
+                // any input not expected to be accounted for.
                 default:
                     System.out.println("Invalid choice. Please select a valid option.");
+
             }
         }
 

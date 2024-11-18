@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collection;
 
 public class Menu {
     private Map<String, MenuItem> items;
@@ -89,7 +89,8 @@ public class Menu {
             while ((line = reader.readLine()) != null) {
                 lineNumber++;
                 // Skip empty lines
-                if (line.trim().isEmpty()) continue;
+                if (line.trim().isEmpty())
+                    continue;
 
                 String[] parts = line.split(",");
                 if (parts.length != 3) {

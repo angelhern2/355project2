@@ -1,5 +1,5 @@
 # 355project2
-this is the second project for it 355. This will showcase the use of our CWE rules
+this is the second project for it 355. This will showcase the use of our 24 CWE rules
 
 Sean implemented CWEs
 Dead code https://cwe.mitre.org/data/definitions/561.html 

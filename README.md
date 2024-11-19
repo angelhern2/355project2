@@ -39,3 +39,10 @@ Description: Occurs when an exception is thrown from a function but is not caugh
  
 Access to Critical Private Variable via Public Method - (767) 
 Description: When a public method has the ability to read or modify a private variable. This could lead to the exposure of sensitive information or the use of unexpected values throughout the program leading to mass errors. 
+
+
+Ariel's Implemented CWEs
+
+Missing Default Case in Multiple Condition Expression - (478) 
+Empty Code Block - (1071) 
+Divide By Zero - (369) 
